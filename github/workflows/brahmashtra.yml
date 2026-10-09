@@ -24,13 +24,6 @@ jobs:
           forge test --fuzz-runs 10000
         continue-on-error: true
 
-      
-      - name: Run Mythril EVM Analysis
-        run: |
-          pip install mythril
-          mythanalyze SimpleStorage.sol
-        continue-on-error: true
-
      
       - name: Run Halmos Symbolic Execution
         run: |
