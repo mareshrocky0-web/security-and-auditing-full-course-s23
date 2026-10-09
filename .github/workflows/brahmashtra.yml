@@ -9,22 +9,19 @@ jobs:
       - name: Checkout repository
         uses: actions/checkout@v3
 
-      
       - name: Run Slither Security Scan
         uses: crytic/slither-action@v0.4.2
         continue-on-error: true
 
-      
       - name: Install Foundry Framework
         uses: foundry-rs/foundry-toolchain@v1
-        
+
       - name: Run Foundry & Echidna Fuzz Attacks
         run: |
           forge build
           forge test --fuzz-runs 10000
         continue-on-error: true
 
-     
       - name: Run Halmos Symbolic Execution
         run: |
           pip install halmos
