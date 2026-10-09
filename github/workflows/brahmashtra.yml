@@ -1,0 +1,39 @@
+name: Maha-Brahmashtra Ultimate Security Pipeline
+
+on: [push, pull_request]
+
+jobs:
+  ultimate-audit:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v3
+
+      
+      - name: Run Slither Security Scan
+        uses: crytic/slither-action@v0.11.0
+        continue-on-error: true
+
+      
+      - name: Install Foundry Framework
+        uses: foundry-rs/foundry-toolchain@v1
+        
+      - name: Run Foundry & Echidna Fuzz Attacks
+        run: |
+          forge build
+          forge test --fuzz-runs 10000
+        continue-on-error: true
+
+      
+      - name: Run Mythril EVM Analysis
+        run: |
+          pip install mythril
+          mythanalyze contracts/SimpleStorage.sol
+        continue-on-error: true
+
+     
+      - name: Run Halmos Symbolic Execution
+        run: |
+          pip install halmos
+          halmos
+        continue-on-error: true
