@@ -11,7 +11,7 @@ jobs:
 
       
       - name: Run Slither Security Scan
-        uses: crytic/slither-action@v0.11.0
+        uses: crytic/slither-action@main
         continue-on-error: true
 
       
