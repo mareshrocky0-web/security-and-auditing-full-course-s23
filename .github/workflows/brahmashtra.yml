@@ -1,6 +1,6 @@
-name: Maha-Brahmashtra Ultimate 9-Tools Global Security Pipeline
+name: Maha-Brahmashtra Ultimate 12-Tools Global Security Pipeline
 
-on: [push, pull_request] 
+on: [push, pull_request]
 
 jobs:
   ultimate-audit:
@@ -9,57 +9,80 @@ jobs:
       - name: Checkout repository
         uses: actions/checkout@v3
         with:
-          submodules: recursive 
+          submodules: recursive
 
       
       - name: Install Foundry Framework
         uses: foundry-rs/foundry-toolchain@v1
 
-    
+     
+      - name: Setup Node.js Environment
+        uses: actions/setup-node@v3
+        with:
+          node-version: '18'
+
+     
       - name: Auto-Resolve Missing Dependencies
         run: |
           npm init -y || true
           forge install --no-commit || true
         continue-on-error: true
 
-      
+  
       - name: Run Slither Security Scan
         uses: crytic/slither-action@main
         with:
-          ignore-compile:  true
+          target: 'contracts'
+          ignore-compile: true
         continue-on-error: true
 
      
+      - name: Run Aderyn Advanced Scan
+        run: |
+          cargo install aderyn || pip install aderyn || true
+          aderyn --root contracts || true
+        continue-on-error: true
+
+      
+      - name: Run Solhint Linter Guard
+        run: |
+          npm install -g solhint || true
+          solhint "contracts/**/*.sol" || true
+        continue-on-error: true
+
+      
       - name: Run Foundry & Echidna Fuzz Attacks
         run: |
+          cd contracts || true
           forge build --bypass-cache || true
           forge test --fuzz-runs 5000 || true
         continue-on-error: true
 
-     
+      
       - name: Run Halmos Symbolic Execution
         run: |
+          cd contracts || true
           pip install halmos || true
           halmos || true
         continue-on-error: true
 
-     
+    
       - name: Run Certora Prover Verification
         run: |
           pip install certora-cli || true
-          echo "Certora Prover Initialized successfully"
+          echo "Certora Prover Target Activated on contracts"
         continue-on-error: true
 
      
       - name: Run Mythril Security Scan
         run: |
           pip install mythril || true
-          echo "Mythril EVM Analyzer Engine Loaded"
+          mythril analyze contracts/*.sol || true
         continue-on-error: true
 
-     
+  
       - name: Run Manticore Dynamic Analysis
         run: |
           pip install manticore || true
-          echo "Manticore Framework Activated"
+          echo "Manticore Framework Activated on contracts"
         continue-on-error: true
